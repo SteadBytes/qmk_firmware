@@ -21,10 +21,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include QMK_KEYBOARD_H
 #include <stdio.h>
 
-#define _BASE 0
-#define _NUM 1
-#define _NAV 2
-#define _ADJ 3
+enum _layers {
+    _BASE,
+    _NUM,
+    _NAV,
+    _I3,
+    _ADJ,
+};
 
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -32,7 +35,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //,-----------------------------------------------------.                    ,----------------------------------------------------.
       KC_EQL,    KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,    KC_O,   KC_P, KC_MINUS,
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
-     LCTL_T(KC_ESC), KC_A, KC_S,  KC_D,  KC_F,     KC_G,                         KC_H,    KC_J,    KC_K,    KC_L, KC_SCLN, KC_QUOT,
+     LCTL_T(KC_ESC), KC_A, KC_S,  KC_D,  KC_F,     KC_G,                         KC_H,    KC_J,  KC_K,  KC_L, KC_SCLN, LCTL_T(KC_QUOT),
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
      KC_LSPO,   KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,                        KC_N,    KC_M,    KC_COMM,  KC_DOT, KC_SLSH, KC_RSPC,
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
@@ -60,9 +63,23 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
       _______, KC_HOME, KC_END, KC_DEL, KC_PASTE, KC_PGDN,                    KC_MS_L, KC_MS_D, KC_MS_U, KC_MS_R,  KC_WFWD, KC_PSCR, \
   //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
-                                  _______,  _______,  MO(_ADJ),    _______, _______, _______
+                                     _______, MO(_ADJ),  MO(_I3),        _______, _______, _______
                                       //`--------------------------'  `--------------------------'
   ),
+
+  [_I3] = LAYOUT_split_3x6_3(
+  //,-----------------------------------------------------.                    ,-----------------------------------------------------.
+     _______, SGUI(KC_1), SGUI(KC_2), SGUI(KC_3), SGUI(KC_4), SGUI(KC_5), SGUI(KC_6), SGUI(KC_7), SGUI(KC_8), SGUI(KC_9), SGUI(KC_0), _______, // Move window to workspaces
+  //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
+     _______, LGUI(KC_1), LGUI(KC_2), LGUI(KC_3), LGUI(KC_4), LGUI(KC_5), LGUI(KC_6), LGUI(KC_7), LGUI(KC_8), LGUI(KC_9), LGUI(KC_0), _______, // Change workspace
+  //|--------+--------+--------+--------+--------+--------|                    |--------+--------+--------+--------+--------+--------|
+	  _______, KC_MS_L, KC_MS_D, KC_MS_U, KC_MS_R, KC_BTN1, 				   	SGUI(KC_H), SGUI(KC_J), SGUI(KC_K), SGUI(KC_L), SGUI(KC_MINS), _______, // Move window
+  //|--------+--------+--------+--------+--------+--------+--------|  |--------+--------+--------+--------+--------+--------+--------|
+                                      _______,  _______, _______,        _______, _______, _______
+                                      //`--------------------------'  `--------------------------'
+
+  ),
+  // TODO: Add a defult layer switch for MacOS? Then change keys e.g. unsupported KC_WBAK to a macro for command + [
 
   [_ADJ] = LAYOUT_split_3x6_3(
   //,-----------------------------------------------------.                    ,-----------------------------------------------------.
@@ -96,6 +113,9 @@ void oled_render_layer_state(void) {
             break;
         case _NAV:
             oled_write_ln_P(PSTR("Nav"), false);
+            break;
+        case _I3:
+            oled_write_ln_P(PSTR("i3"), false);
             break;
         case _ADJ:
             oled_write_ln_P(PSTR("Adjust"), false);
